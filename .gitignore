@@ -1,0 +1,26 @@
+build/
+compile_commands.json
+perf.data*
+callgrind.out*
+
+# Compiled binaries and object files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+
+# IDE/Editor caches and settings
+.vscode/
+.idea/
+.clangd/
+.cache/
+*.swp
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db

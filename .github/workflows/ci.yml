@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / C++${{ matrix.standard }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # GCC
+          - os: ubuntu-latest
+            compiler: gcc
+            cc: gcc
+            cxx: g++
+            standard: 11
+          - os: ubuntu-latest
+            compiler: gcc
+            cc: gcc
+            cxx: g++
+            standard: 17
+          - os: ubuntu-latest
+            compiler: gcc
+            cc: gcc
+            cxx: g++
+            standard: 20
+
+          # Clang
+          - os: ubuntu-latest
+            compiler: clang
+            cc: clang
+            cxx: clang++
+            standard: 11
+          - os: ubuntu-latest
+            compiler: clang
+            cc: clang
+            cxx: clang++
+            standard: 17
+          - os: ubuntu-latest
+            compiler: clang
+            cc: clang
+            cxx: clang++
+            standard: 20
+
+          # ICX (Intel oneAPI)
+          - os: ubuntu-latest
+            compiler: icx
+            cc: icx
+            cxx: icpx
+            standard: 11
+          - os: ubuntu-latest
+            compiler: icx
+            cc: icx
+            cxx: icpx
+            standard: 17
+          - os: ubuntu-latest
+            compiler: icx
+            cc: icx
+            cxx: icpx
+            standard: 20
+
+          # MSVC
+          - os: windows-latest
+            compiler: msvc
+            standard: 14
+          - os: windows-latest
+            compiler: msvc
+            standard: 17
+          - os: windows-latest
+            compiler: msvc
+            standard: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Intel oneAPI (icx)
+        if: matrix.compiler == 'icx'
+        run: |
+          curl -sS -L https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+          sudo apt-get update
+          sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp
+
+      - name: Build and Test
+        shell: bash
+        run: |
+          if [ "${{ matrix.compiler }}" = "icx" ]; then
+            source /opt/intel/oneapi/setvars.sh
+          fi
+          mkdir build
+          cd build
+          if [ "${{ matrix.compiler }}" = "msvc" ]; then
+            cmake -DCMAKE_CXX_STANDARD=${{ matrix.standard }} ..
+            cmake --build . --config Release
+            ctest -C Release --output-on-failure
+          else
+            cmake -DCMAKE_C_COMPILER=${{ matrix.cc }} \
+                  -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+                  -DCMAKE_CXX_STANDARD=${{ matrix.standard }} ..
+            cmake --build .
+            ctest --output-on-failure
+          fi

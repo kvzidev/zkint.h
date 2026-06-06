@@ -1,0 +1,45 @@
+BasedOnStyle: Google
+# Macros
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+AlignEscapedNewlines: LeftWithLastLine
+# Control Flow
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+# Stylized
+IndentWidth: 2
+InsertBraces: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  BeforeElse: true
+AlignArrayOfStructures: Right
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+# ↓ required for alignment
+DerivePointerAlignment: false
+ReferenceAlignment: Right
+PointerAlignment: Right
+ReflowComments: Always
+RemoveEmptyLinesInUnwrappedLines: true
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+# SpaceAfterOperatorKeyword: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: false
+SpaceBeforeInheritanceColon: false
+SpaceBeforeJsonColon: false
+SpaceBeforeParens: ControlStatements
+SpaceBeforeSquareBrackets: false
+SpacesBeforeTrailingComments: 2
+# ↓ Always, OverEmptyLines
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+  # MaxEmptyLinesToKeep: 2
+UseTab: Never
