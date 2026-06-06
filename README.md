@@ -1,6 +1,6 @@
 # zkint
 
-[![CI](https://github.com/kvzidev/zkint/actions/workflows/ci.yml/badge.svg)](https://github.com/kvzidev/zkint/actions)
+[![CI](https://github.com/kvzidev/zkint.h/actions/workflows/ci.yml/badge.svg)](https://github.com/kvzidev/zkin.ht/actions)
 
 A high-performance, header-only multi-precision integer library for C99+ and C++11+. It implements signed and unsigned integers of sizes 128, 256, 512, and 1024 bits.
 
