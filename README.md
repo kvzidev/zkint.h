@@ -71,8 +71,8 @@ int main() {
 ## Running Tests
 
 Use the helper scripts:
-- `./Build` to compile tests.
-- `./Test` to execute tests.
+- `./build.sh` to compile tests.
+- `./test.sh` to execute tests.
 
 ## Compiler Compatibility
 
