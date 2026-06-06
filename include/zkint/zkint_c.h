@@ -204,6 +204,7 @@ ZKINT_INLINE void zk_divmod_limbs(uint64_t *quot, uint64_t *rem,
   }
   if (single_limb) {
     uint64_t D = den[0];
+    if (D == 0) { return; }
     uint64_t carry = 0;
     for (int i = n - 1; i >= 0; --i) {
       if (carry == 0) {
@@ -402,12 +403,14 @@ ZKINT_INLINE int zk_compare_limbs_signed(const uint64_t *a, const uint64_t *b,
   return zk_compare_limbs_unsigned(a, b, n);
 }
 
-ZKINT_INLINE void zk_from_uint64(uint64_t *r, uint64_t val, int n) {
+ZKINT_CONSTEXPR_FN ZKINT_INLINE void zk_from_uint64(uint64_t *r, uint64_t val,
+                                                    int n) {
   r[0] = val;
   for (int i = 1; i < n; ++i) { r[i] = 0; }
 }
 
-ZKINT_INLINE void zk_from_int64(uint64_t *r, int64_t val, int n) {
+ZKINT_CONSTEXPR_FN ZKINT_INLINE void zk_from_int64(uint64_t *r, int64_t val,
+                                                   int n) {
   r[0] = (uint64_t)val;
   uint64_t fill = (val < 0) ? 0xFFFFFFFFFFFFFFFFULL : 0;
   for (int i = 1; i < n; ++i) { r[i] = fill; }

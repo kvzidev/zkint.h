@@ -162,6 +162,20 @@ void TestEdgeCases() {
   assert(hex_case == 0xabcdef123456789ULL);
 }
 
+void TestConstexpr() {
+#if __cplusplus >= 201103L
+  constexpr zk::uint128_t num_a;
+  constexpr zk::uint128_t num_b = 42;
+  constexpr zk::uint256_t num_c = num_b;
+  static_assert(num_a.limbs[0] == 0,
+                "Default constructor failed constexpr check");
+  static_assert(num_b.limbs[0] == 42,
+                "Integer constructor failed constexpr check");
+  static_assert(num_c.limbs[0] == 42,
+                "Converting constructor failed constexpr check");
+#endif
+}
+
 int main() {
   TestBasicArithmetic();
   TestComparisons();
@@ -170,6 +184,7 @@ int main() {
   TestIncDec();
   TestString();
   TestEdgeCases();
+  TestConstexpr();
   std::cout << "All C++ tests passed successfully.\n";
   return 0;
 }

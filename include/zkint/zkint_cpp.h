@@ -34,6 +34,15 @@ struct is_bigint: std::false_type {};
 template<size_t Bits, bool Signed>
 struct is_bigint<bigint<Bits, Signed>>: std::true_type {};
 
+template<size_t...>
+struct seq {};
+template<size_t N, size_t... Is>
+struct gen_seq: gen_seq<N - 1, N - 1, Is...> {};
+template<size_t... Is>
+struct gen_seq<0, Is...> {
+  using type = seq<Is...>;
+};
+
 template<size_t Bits, bool Signed>
 struct bigint_c_type;
 
@@ -82,22 +91,32 @@ class bigint {
 
   uint64_t limbs[LimbsCount];
 
-  bigint() noexcept {
-    for (size_t i = 0; i < LimbsCount; ++i) { limbs[i] = 0; }
-  }
+  ZKINT_CONSTEXPR bigint() noexcept: limbs {} {}
 
+ private:
+  template<typename T, size_t... Is>
+  ZKINT_CONSTEXPR bigint(T val, seq<Is...>) noexcept
+      : limbs {(Is == 0
+                    ? static_cast<uint64_t>(val)
+                    : (std::is_signed<T>::value && static_cast<int64_t>(val) < 0
+                           ? 0xFFFFFFFFFFFFFFFFULL
+                           : 0))...} {}
+
+  template<size_t OtherBits, bool OtherSigned, size_t... Is>
+  ZKINT_CONSTEXPR bigint(const bigint<OtherBits, OtherSigned> &other,
+                         seq<Is...>) noexcept
+      : limbs {(Is < (OtherBits / 64)
+                    ? other.limbs[Is]
+                    : (OtherSigned && (other.limbs[(OtherBits / 64) - 1] &
+                                       (1ULL << 63))
+                           ? 0xFFFFFFFFFFFFFFFFULL
+                           : 0))...} {}
+
+ public:
   template<typename T,
            typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
-  bigint(T val) noexcept {
-    if (std::is_signed<T>::value) {
-      int64_t sval = static_cast<int64_t>(val);
-      zk_from_int64(limbs, sval, LimbsCount);
-    }
-    else {
-      uint64_t uval = static_cast<uint64_t>(val);
-      zk_from_uint64(limbs, uval, LimbsCount);
-    }
-  }
+  ZKINT_CONSTEXPR bigint(T val) noexcept
+      : bigint(val, typename gen_seq<LimbsCount>::type {}) {}
 
   explicit bigint(const char *str) {
     zk_from_string_limbs(limbs, str, LimbsCount);
@@ -124,15 +143,8 @@ class bigint {
       typename std::enable_if<(OtherBits < Bits) ||
                                   (OtherBits == Bits && OtherSigned && !Signed),
                               int>::type = 0>
-  bigint(const bigint<OtherBits, OtherSigned> &other) noexcept {
-    constexpr size_t OtherLimbs = OtherBits / 64;
-    for (size_t i = 0; i < OtherLimbs; ++i) { limbs[i] = other.limbs[i]; }
-    uint64_t fill = 0;
-    if (OtherSigned && (other.limbs[OtherLimbs - 1] & (1ULL << 63))) {
-      fill = 0xFFFFFFFFFFFFFFFFULL;
-    }
-    for (size_t i = OtherLimbs; i < LimbsCount; ++i) { limbs[i] = fill; }
-  }
+  ZKINT_CONSTEXPR bigint(const bigint<OtherBits, OtherSigned> &other) noexcept
+      : bigint(other, typename gen_seq<LimbsCount>::type {}) {}
 
   explicit operator bool() const noexcept {
     for (size_t i = 0; i < LimbsCount; ++i) {

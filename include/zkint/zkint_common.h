@@ -33,6 +33,18 @@
 #define ZKINT_HAS_INT128 1
 #endif
 
+#if defined(__cplusplus) && __cplusplus >= 201103L
+#define ZKINT_CONSTEXPR constexpr
+#else
+#define ZKINT_CONSTEXPR
+#endif
+
+#if defined(__cplusplus) && __cplusplus >= 201402L
+#define ZKINT_CONSTEXPR_FN constexpr
+#else
+#define ZKINT_CONSTEXPR_FN
+#endif
+
 #if defined(_MSC_VER)
 #include <intrin.h>
 #pragma intrinsic(_addcarry_u64)
