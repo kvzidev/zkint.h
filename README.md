@@ -25,7 +25,7 @@ include(FetchContent)
 FetchContent_Declare(
     zkint
     GIT_REPOSITORY https://github.com/kvzidev/zkint.git
-    GIT_TAG        main
+    GIT_TAG        master
 )
 FetchContent_MakeAvailable(zkint)
 
