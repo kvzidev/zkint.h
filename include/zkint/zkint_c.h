@@ -21,8 +21,8 @@
 
 /* Helper arithmetic primitives */
 
-ZKINT_INLINE void zk_from_uint64(uint64_t *r, uint64_t val, int n);
-ZKINT_INLINE void zk_from_int64(uint64_t *r, int64_t val, int n);
+ZKINT_CONSTEXPR_FN ZKINT_INLINE void zk_from_uint64(uint64_t *r, uint64_t val, int n);
+ZKINT_CONSTEXPR_FN ZKINT_INLINE void zk_from_int64(uint64_t *r, int64_t val, int n);
 
 ZKINT_INLINE uint64_t zk_add_with_carry(uint64_t a, uint64_t b,
                                         uint64_t carry_in, uint64_t *sum) {
