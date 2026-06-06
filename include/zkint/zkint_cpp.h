@@ -34,29 +34,47 @@ struct is_bigint: std::false_type {};
 template<size_t Bits, bool Signed>
 struct is_bigint<bigint<Bits, Signed>>: std::true_type {};
 
-template<typename T>
-struct is_c_bigint: std::false_type {};
+template<size_t Bits, bool Signed>
+struct bigint_c_type;
 
 template<>
-struct is_c_bigint<zk_uint128_t>: std::true_type {};
+struct bigint_c_type<128, false> {
+  using type = zk_uint128_t;
+};
 template<>
-struct is_c_bigint<zk_int128_t>: std::true_type {};
+struct bigint_c_type<128, true> {
+  using type = zk_int128_t;
+};
 template<>
-struct is_c_bigint<zk_uint256_t>: std::true_type {};
+struct bigint_c_type<256, false> {
+  using type = zk_uint256_t;
+};
 template<>
-struct is_c_bigint<zk_int256_t>: std::true_type {};
+struct bigint_c_type<256, true> {
+  using type = zk_int256_t;
+};
 template<>
-struct is_c_bigint<zk_uint512_t>: std::true_type {};
+struct bigint_c_type<512, false> {
+  using type = zk_uint512_t;
+};
 template<>
-struct is_c_bigint<zk_int512_t>: std::true_type {};
+struct bigint_c_type<512, true> {
+  using type = zk_int512_t;
+};
 template<>
-struct is_c_bigint<zk_uint1024_t>: std::true_type {};
+struct bigint_c_type<1024, false> {
+  using type = zk_uint1024_t;
+};
 template<>
-struct is_c_bigint<zk_int1024_t>: std::true_type {};
+struct bigint_c_type<1024, true> {
+  using type = zk_int1024_t;
+};
 
 template<size_t Bits, bool Signed>
 class bigint {
  public:
+  using c_type = typename bigint_c_type<Bits, Signed>::type;
+
   static_assert(Bits % 64 == 0, "Bits must be a multiple of 64");
   static_assert(Bits >= 128 && Bits <= 1024,
                 "Bits must be between 128 and 1024");
@@ -89,21 +107,13 @@ class bigint {
     zk_from_string_limbs(limbs, str.c_str(), LimbsCount);
   }
 
-  template<typename CType,
-           typename std::enable_if<is_c_bigint<CType>::value &&
-                                       sizeof(CType) == sizeof(limbs),
-                                   int>::type = 0>
-  bigint(const CType &c) noexcept {
+  bigint(const c_type &c) noexcept {
     const uint64_t *src = reinterpret_cast<const uint64_t *>(&c);
     for (size_t i = 0; i < LimbsCount; ++i) { limbs[i] = src[i]; }
   }
 
-  template<typename CType,
-           typename std::enable_if<is_c_bigint<CType>::value &&
-                                       sizeof(CType) == sizeof(limbs),
-                                   int>::type = 0>
-  operator CType() const noexcept {
-    CType c;
+  operator c_type() const noexcept {
+    c_type c;
     uint64_t *dest = reinterpret_cast<uint64_t *>(&c);
     for (size_t i = 0; i < LimbsCount; ++i) { dest[i] = limbs[i]; }
     return c;

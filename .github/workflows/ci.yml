@@ -76,7 +76,7 @@ jobs:
             standard: 20
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Intel oneAPI (icx)
         if: matrix.compiler == 'icx'
